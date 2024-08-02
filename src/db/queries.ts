@@ -2,6 +2,7 @@ import { MysqlError } from "mysql";
 import { con } from "./connection";
 
 export const Transporter = {
+    /**UTILITY TABLES*/
     createBrand: (brand: string, callback: any) => {
         con.query(
             `INSERT INTO brands (name) VALUES (?)`, brand,
@@ -26,6 +27,27 @@ export const Transporter = {
             callback(null, plainResult);
         });
     },
+    updateBrand: (brandID: number, brand: string, callback: any) => {
+        con.query(`UPDATE brands SET name = ? WHERE id = ?`, [brand, brandID], (err: MysqlError | null, result: any) => {
+            if (err) {
+                console.error("Error:", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, result);
+        });
+    },
+    deleteBrand: (brandID: number, callback: any) => {
+        con.query(`DELETE FROM brands WHERE id = ?`, brandID, (err: MysqlError | null, result: any) => {
+            if (err) {
+                console.error("Error:", err);
+                callback(err, null);
+                return;
+            }
+            callback(null, result);
+        })
+
+    },
     getSeniorities: (callback: any) => {
         con.query(`SELECT * FROM seniorities`, (err: MysqlError | null, result: any) => {
             if (err) {
@@ -37,6 +59,7 @@ export const Transporter = {
             callback(null, plainResult);
         });
     },
+    /**TRUCKS*/
     createTruck: (brand: number, load: number, capacity: number, year: string, repairs: number, callback: any) => {
         con.query(
             `INSERT INTO trucks (brand, truck_load, capacity, year, repairs) VALUES (?, ?, ?, ?, ?)`,
@@ -104,6 +127,7 @@ export const Transporter = {
             callback(null, result);
         });
     },
+    /**EMPLOYEES*/
     createEmployee: (name: string, surname: string, seniority: number, callback: any) => {
         con.query(
             `INSERT INTO employees (name, surname, seniority) VALUES (?, ?, ?)`, [name, surname, seniority],
@@ -170,6 +194,7 @@ export const Transporter = {
             callback(null, result);
         });
     },
+    /**DRIVERS*/
     createDriver: (employeeID: number, category: number, callback: any) => {
         con.query(
             `INSERT INTO drivers (employee_id, category) VALUES (?, ?)`, [employeeID, category],
@@ -349,6 +374,7 @@ export const Transporter = {
             }
         )
     },
+    /**CUSTOMERS*/
     createCustomer: (name: string, surname: string, address: string, phone1: string, phone2: string, callback: any) => {
         con.query(
             `INSERT INTO customers (name, surname, address, phone1, phone2) VALUES (?, ?, ?, ?, ?)`, [name, surname, address, phone1, phone2],
@@ -458,7 +484,7 @@ export const Transporter = {
             }
         )
     },
-    updateShipment: (shipmentID:number, name: string, weight: number, value: number, callback: any) => {
+    updateShipment: (shipmentID: number, name: string, weight: number, value: number, callback: any) => {
         con.query(
             `UPDATE shipments SET name = ? , weight = ?, value = ? WHERE id = ?`, [name, weight, value, shipmentID],
             (err: MysqlError | null, result: any) => {
@@ -471,9 +497,9 @@ export const Transporter = {
             }
         );
     },
-    deleteShipment: (shipmentID:number, callback: any) => {
+    deleteShipment: (shipmentID: number, callback: any) => {
         con.query(
-            `DELETE FROM shipments WHERE id = ?`,  shipmentID,
+            `DELETE FROM shipments WHERE id = ?`, shipmentID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
                     console.error("Error:", err);
