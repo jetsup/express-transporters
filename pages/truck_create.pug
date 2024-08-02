@@ -1,0 +1,32 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+form(method="POST")
+  
+  .form-group.m-3
+    label(for='truck-brand') Brand
+    //- input#truck-brand.form-control(type='text' name="truck-brand" placeholder='Enter the Brand of the Truck' required)
+    select#truck-brand.form-control(name="brand" value='Enter the Brand of the Truck' required)
+      //TODO:Show a redirection link to populate brands if an empty set was returned
+      each brand of brands 
+        option(value=brand.id) #{brand.name}
+       
+  .row.m-3
+    .form-group.col-md-3
+      label(for='truck-load') Load
+      input#truck-load.form-control(type='number' name="load" placeholder='Enter the load of the truck' min="0" required)
+    .form-group.col-md-3
+      label(for='truck-capacity') Capacity
+      input#truck-capacity.form-control(type='number' name="capacity" placeholder='Enter the capacity of the truck' min="0" required)
+    .form-group.col-md-3
+      label(for='truck-year') Year
+      input#truck-year.form-control(type='number' name="year" placeholder='Enter the year the truck was bought' min="2016" max="2025" required)
+    .form-group.col-md-3
+      label(for='truck-repairs') Repairs Done
+      input#truck-repairs.form-control(type='number' name="repairs" placeholder='Enter the number of repairs the truck has undergone' min="0" required)
+  button.btn.btn-primary.m-3(type='submit') Create
+
+script(src='/js/bootstrap.js' type='module')

@@ -1,0 +1,25 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+  link(href='/css/dataTables.dataTables.css' rel='stylesheet')
+  script(src='/js/jquery.js')
+  script(src='/js/dataTables.js')
+  script(src='/js/transporter-utils-driver.js' type="module")
+
+body.px-3
+  table#driver-table.col-md-10.table.table-striped.table-bordered.table-hover
+    thead 
+      tr 
+        th First Name 
+        th Surname 
+        th Category 
+        th Action
+    tbody 
+
+script(src='/js/bootstrap.js' type='module')
+
+script(type="module").
+  import populateDrivers from '/js/transporter-utils-driver.js';
+  populateDrivers();

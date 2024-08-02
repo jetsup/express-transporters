@@ -1,0 +1,29 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+  link(href='/css/dataTables.dataTables.css' rel='stylesheet')
+  script(src='/js/jquery.js')
+  script(src='/js/dataTables.js')
+  script(src='/js/transporter-utils-truck.js' type="module")
+
+body.px-3
+  table#truck-table.col-md-10.table.table-striped.table-bordered.table-hover
+    thead 
+      tr 
+        //- th Truck ID
+        th Brand 
+        th Load 
+        th Capacity 
+        th Year 
+        th Repairs 
+        th Action
+    tbody 
+
+script(src='/js/bootstrap.js' type='module')
+
+script(type="module").
+  import populateTrucks from '/js/transporter-utils-truck.js';
+
+  populateTrucks();

@@ -1,0 +1,25 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+  link(href='/css/dataTables.dataTables.css' rel='stylesheet')
+  script(src='/js/jquery.js')
+  script(src='/js/dataTables.js')
+  script(src='/js/transporter-utils-employee.js' type="module")
+
+body.px-3
+  table#employee-table.col-md-10.table.table-striped.table-bordered.table-hover
+    thead 
+      tr 
+        th First Name 
+        th Surname 
+        th Seniority 
+        th Action
+    tbody 
+
+script(src='/js/bootstrap.js' type='module')
+
+script(type="module").
+  import populateEmployees from '/js/transporter-utils-employee.js';
+  populateEmployees();

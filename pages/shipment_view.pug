@@ -1,0 +1,28 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+  link(href='/css/dataTables.dataTables.css' rel='stylesheet')
+  script(src='/js/jquery.js')
+  script(src='/js/dataTables.js')
+  script(src='/js/transporter-utils-shipment.js' type="module")
+
+body.px-3
+  table#shipment-table.col-md-10.table.table-striped.table-bordered.table-hover
+    thead 
+      tr 
+        //- th Truck ID
+        th Name 
+        th Weight 
+        th Value  
+        th Customer
+        th Action
+    tbody 
+
+script(src='/js/bootstrap.js' type='module')
+
+script(type="module").
+  import populateShipments from '/js/transporter-utils-shipment.js';
+
+  populateShipments();
