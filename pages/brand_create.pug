@@ -1,0 +1,15 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+form(method="POST")
+  
+  .form-group.m-3
+    label(for='brand') Brand
+    input#brand.form-control(type='text' name="brand" placeholder='Brand Name' required)
+    
+  button.btn.btn-primary.m-3(type='submit') Create Brand
+
+script(src='/js/bootstrap.js' type='module')

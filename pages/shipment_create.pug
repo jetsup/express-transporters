@@ -1,0 +1,29 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+form(method="POST")
+  
+  .row.mx-3
+    .form-group.col-md-4
+      label(for='weight') Weight
+      input#weight.form-control(type='number' name="weight" min="0" max="10000" required value="0")
+    .form-group.col-md-4
+      label(for='value') Value
+      input#value.form-control(type='number' name="value" min="0" max="10000000" required value="0")
+    .form-group.col-md-4
+      label(for='name') Name
+      input#name.form-control(type='text' name="name" placeholder="Enter the name of the package" required)
+       
+  .row.m-3
+    .form-group.col-md-12
+      label(for='customer') Customer
+      select#customer.form-control(name="customer" required)
+        each customer of customers 
+          option(value=customer.id) #{customer.name} #{customer.surname} -  #{customer.address}
+
+  button.btn.btn-primary.m-3(type='submit') Create
+
+script(src='/js/bootstrap.js' type='module')

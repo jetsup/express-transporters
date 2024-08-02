@@ -1,0 +1,29 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+  link(href='/css/dataTables.dataTables.css' rel='stylesheet')
+  script(src='/js/jquery.js')
+  script(src='/js/dataTables.js')
+  script(src='/js/transporter-utils-customer.js' type="module")
+
+body.px-3
+  table#customer-table.col-md-10.table.table-striped.table-bordered.table-hover
+    thead 
+      tr 
+        //- th Truck ID
+        th Name  
+        th Surname
+        th Address 
+        th Phone1  
+        th Phone2  
+        th Action
+    tbody 
+
+script(src='/js/bootstrap.js' type='module')
+
+script(type="module").
+  import populateCustomers from '/js/transporter-utils-customer.js';
+
+  populateCustomers();

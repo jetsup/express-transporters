@@ -1,0 +1,30 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+form(method="POST")
+  
+  .row.mx-3
+    .form-group.col-md-6
+      label(for='name') Name
+      input#name.form-control(type='text' name="name" placeholder="Enter Customer's First Name" required value=customer.name)
+    .form-group.col-md-6
+      label(for='surname') Surname
+      input#surname.form-control(type='text' name="surname" placeholder="Enter Customer's Surname" required value=customer.surname)
+       
+  .row.m-3
+    .form-group.col-md-4
+      label(for='address') Address
+      input#address.form-control(type='text' name="address" placeholder="Enter Customer's Address" required value=customer.address)
+    .form-group.col-md-4
+      label(for='phone1') Phone 1
+      input#phone1.form-control(type='tel' name="phone1" placeholder='Phone' required value=customer.phone1)
+    .form-group.col-md-4
+      label(for='phone2') Phone 2
+      input#phone2.form-control(type='tel' name="phone2" placeholder='Phone' required value=customer.phone2)
+
+  button.btn.btn-primary.m-3(type='submit') Create
+
+script(src='/js/bootstrap.js' type='module')

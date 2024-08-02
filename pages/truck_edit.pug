@@ -1,0 +1,33 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+h1.text-center #{truck.brand} <i>#{truck.year} Model</i>
+
+form(method="POST" action="/truck/update/"+truck.id)
+  .form-group.mx-4.mt-3
+    label(for='truck-brand') Brand
+    select#truck-brand.form-control(name="brand" value='Enter the Brand of the Truck' required disabled title="You can change truck brand :)")
+      //TODO:Show a redirection link to populate brands if an empty set was returned
+      each brand of brands 
+        if brand.id == truck.brand_id 
+          option(value=brand.id selected) #{brand.name}
+        else 
+          option(value=brand.id) #{brand.name}
+       
+  .row.m-3
+    .form-group.col-md-3
+      label(for='truck-load') Load
+      input#truck-load.form-control(type='number' name="load" placeholder='Enter the load of the truck' min="0" value=truck.truck_load required)
+    .form-group.col-md-3
+      label(for='truck-capacity') Capacity
+      input#truck-capacity.form-control(type='number' name="capacity" placeholder='Enter the capacity of the truck' min="0" value=truck.capacity required)
+    .form-group.col-md-3
+      label(for='truck-year') Year
+      input#truck-year.form-control(type='number' name="year" placeholder='Enter the year the truck was bought' min="2016" max="2025" value=truck.year required)
+    .form-group.col-md-3
+      label(for='truck-repairs') Repairs Done
+      input#truck-repairs.form-control(type='number' name="repairs" placeholder='Enter the number of repairs the truck has undergone' min="0" value=truck.repairs required)
+  button.btn.btn-primary.m-3(type='submit') Update

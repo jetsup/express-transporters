@@ -1,0 +1,25 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+form.mx-3(method="POST")
+  .row.mx-3
+    .form-group.col-md-6
+      label(for='name') Name
+      input#name.form-control(type='text' name="name" placeholder='First Name' required)
+    .form-group.col-md-6
+      label(for='surname') Surname
+      input#surname.form-control(type='text' name="surname" placeholder='Surname' required)
+       
+  .row.mx-3.mt-3
+    .form-group.col-md-12
+      label(for='seniority') Seniority
+      //-input#seniority.form-control(type='text' name="seniority" placeholder='Employee Rank' min="0" required)
+      select#seniority.form-control(name="seniority" required)
+        each seniority of seniorities 
+          option(value=seniority.id) #{seniority.seniority}
+  button.btn.btn-primary.m-3(type='submit') Create
+
+script(src='/js/bootstrap.js' type='module')

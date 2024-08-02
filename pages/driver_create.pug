@@ -1,0 +1,22 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+form.mx-3(method="POST")
+  .row.mx-3
+    .form-group.col-md-8
+      label(for='name') Employee
+      select#name.form-control(type='text' name="employee" placeholder='First Name' required)
+        each employee in employees 
+          option(value=employee.id) #{employee.name} #{employee.surname} <i>(#{employee.seniority})</i>
+       
+    .form-group.col-md-2
+      label(for='category') Category
+      select#category.form-control(name="category" required)
+        each category in categories 
+          option(value=category.id) #{category.category}
+    button.btn.btn-primary.mt-4.col-md-2(type='submit') Create
+
+script(src='/js/bootstrap.js' type='module')
