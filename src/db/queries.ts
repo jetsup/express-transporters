@@ -558,7 +558,6 @@ export const Transporter = {
     },
     /**TRIPS*/
     createTrip: (routeFrom: string, routeTo: string, driver1ID: number, driver2ID: number | null, callback: any) => {
-        console.log("Q2:", driver2ID);
         con.query(
             (driver2ID == -1 || driver2ID == null) ?
                 `INSERT INTO trips (route_from, route_to, driver1_id) VALUES (?, ?, ?)` :

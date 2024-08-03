@@ -57,13 +57,9 @@ export const cargoCreatePostRouter = express.Router().post("/cargo/create", asyn
             }
             resolve(result);
 
-            console.log("Res:", result)
             shipment = result.insertId;
-            console.log("insertID", shipment)
-
 
             if (driver2 == -1) driver2 = null;
-            console.log("Driver2: ", driver2)
             Transporter.createTrip(origin, destination, driver1, driver2, (err: MysqlError | null, result: any) => {
                 if (err) {
                     // reject(err);
@@ -74,7 +70,6 @@ export const cargoCreatePostRouter = express.Router().post("/cargo/create", asyn
 
                 trip = result.insertId;
 
-                console.log("Trip:", trip, "Shipment:", shipment);
                 Transporter.createTripShipment(trip, shipment, (err: MysqlError | null, result: any) => {
                     if (err) {
                         // reject(err);
@@ -131,7 +126,6 @@ export const cargoAPIRouter = express.Router().get("/api/cargos", async (req, re
         });
     });
 
-    console.log(cargos)
     res.json(cargos);
 });
 // export const homeRouter = express.Router().
@@ -218,8 +212,6 @@ export const truckCreateRouter = express.Router().get("/truck/create", async (re
         });
     });
 
-    console.log("Brands: ", dealtBrands);
-
     res.render("truck_create", {
         title: "Create Truck",
         brands: dealtBrands,
@@ -264,7 +256,6 @@ export const truckEditRouter = express.Router().get("/truck/view/:truckID", asyn
                 reject(err);
                 return;
             }
-            console.log("Truck:", result);
             resolve(result);
         });
     });
@@ -304,7 +295,7 @@ export const truckUpdateRouter = express.Router().post("/truck/update/:truckID",
                 reject(err);
                 return;
             }
-            console.log("Truck:", result);
+
             resolve(result);
         });
     });
@@ -556,13 +547,10 @@ export const driverEditRouter = express.Router().get("/driver/view/:driverID", a
     });
 
     const driver = driverArr[0];
-    console.log("Driver:", driver);
 
     if (driver) {
         const employeeArr: Array<unknown> = await new Promise((resolve, reject) => {
             const employeeID = (driver as { employee_id: number }).employee_id;
-
-            console.log("EmployeeID: ", employeeID);
 
             Transporter.getEmployee(employeeID, true, (err: MysqlError | null, result: any) => {
                 if (err) {
@@ -572,8 +560,6 @@ export const driverEditRouter = express.Router().get("/driver/view/:driverID", a
                 resolve(result);
             });
         });
-
-        console.log("Employee:", employeeArr)
 
         const employee = employeeArr[0];
 
@@ -733,8 +719,6 @@ export const mechanicEditRouter = express.Router().get("/mechanic/view/:mechanic
 
         const employee = employeeArr[0];
 
-        console.log(mechanic, brands, employee)
-
         if (employee) {
             res.render("mechanic_edit", {
                 title: "View Mechanic",
@@ -804,7 +788,6 @@ export const mechanicAPIRouter = express.Router().get("/api/mechanic", async (re
         });
     });
 
-    console.log(mechanics)
     res.json(mechanics);
 });
 // Repair
@@ -929,7 +912,6 @@ export const customerAPIRouter = express.Router().get("/api/customer", async (re
         });
     });
 
-    console.log(customers)
     res.json(customers);
 });
 // Shipment
@@ -1050,7 +1032,6 @@ export const shipmentAPIRouter = express.Router().get("/api/shipment", async (re
         });
     });
 
-    console.log(shipments)
     res.json(shipments);
 });
 
