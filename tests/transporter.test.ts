@@ -1272,4 +1272,472 @@ describe('Transporter.deleteMechanic', () => {
 
 /********************************************CUSTOMER TESTS*******************************************/
 // CREATE CUSTOMER
+describe('Transporter.createCustomer', () => {
+    it('should insert a customer and return the result', (done) => {
+        const name = 'John';
+        const surname = 'Doe';
+        const address = '123 Fake St';
+        const phone1 = '123456789';
+        const phone2 = '987654321';
+        const mockResult = { insertId: 1 };
 
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.createCustomer(name, surname, address, phone1, phone2, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO customers (name, surname, address, phone1, phone2) VALUES (?, ?, ?, ?, ?)',
+                [name, surname, address, phone1, phone2],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const name = 'John';
+        const surname = 'Doe';
+        const address = '123 Fake St';
+        const phone1 = '123456789';
+        const phone2 = '987654321';
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.createCustomer(name, surname, address, phone1, phone2, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO customers (name, surname, address, phone1, phone2) VALUES (?, ?, ?, ?, ?)',
+                [name, surname, address, phone1, phone2],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+})
+
+// RETRIEVE CUSTOMERS
+describe('Transporter.getCustomers', () => {
+    it('should retrieve all customers', (done) => {
+        const mockCustomers = [
+            { id: 1, name: 'John', surname: 'Doe', address: '123 Fake St', phone1: '123456789', phone2: '987654321' },
+            { id: 2, name: 'Jane', surname: 'Smith', address: '456 Real St', phone1: '987654321', phone2: '123456789' },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockCustomers);
+        });
+
+        Transporter.getCustomers((err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockCustomers);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM customers',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getCustomers((err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM customers',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// UPDATE CUSTOMER
+describe('Transporter.updateCustomer', () => {
+    it('should update a customer and return the result', (done) => {
+        const customerID = 1;
+        const name = 'John';
+        const surname = 'Doe';
+        const address = '123 Fake St';
+        const phone1 = '123456789';
+        const phone2 = '987654321';
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.updateCustomer(customerID, name, surname, address, phone1, phone2, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE customers SET name = ?, surname = ?, address = ?, phone1 = ?, phone2 = ? WHERE id = ?',
+                [name, surname, address, phone1, phone2, customerID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const customerID = 1;
+        const name = 'John';
+        const surname = 'Doe';
+        const address = '123 Fake St';
+        const phone1 = '123456789';
+        const phone2 = '987654321';
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.updateCustomer(customerID, name, surname, address, phone1, phone2, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE customers SET name = ?, surname = ?, address = ?, phone1 = ?, phone2 = ? WHERE id = ?',
+                [name, surname, address, phone1, phone2, customerID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// DELETE CUSTOMER
+describe('Transporter.deleteCustomer', () => {
+    it('should delete a customer and return the result', (done) => {
+        const customerID = 1;
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.deleteCustomer(customerID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM customers WHERE id = ?',
+                customerID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const customerID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.deleteCustomer(customerID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM customers WHERE id = ?',
+                customerID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+/********************************************SHIPMENT TESTS*******************************************/
+// CREATE SHIPMENT
+describe('Transporter.createShipment', () => {
+    it('should insert a shipment and return the result', (done) => {
+        const customerID = 1;
+        const weight = 22;
+        const value = 30000;
+        const name = 'Electronics Parts';
+        const mockResult = { insertId: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.createShipment(name, weight, value, customerID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO shipments (name, weight, value, customer_id) VALUES (?, ?, ?, ?)',
+                [name, weight, value, customerID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const customerID = 1;
+        const weight = 22;
+        const value = 30000;
+        const name = 'Electronics Parts';
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.createShipment(name, weight, value, customerID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO shipments (name, weight, value, customer_id) VALUES (?, ?, ?, ?)',
+                [name, weight, value, customerID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+})
+
+// RETRIEVE SHIPMENTS
+describe('Transporter.getShipments', () => {
+    it('should retrieve all shipments with dereference', (done) => {
+        const mockShipments = [
+            { id: 1, name: 'Electronics Parts', weight: 22, value: 30000, customer_id: 1 },
+            { id: 2, name: 'Furniture', weight: 50, value: 50000, customer_id: 2 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockShipments);
+        });
+
+        Transporter.getShipments(true, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockShipments);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT s.id, s.name, s.weight, s.value, c.name AS customer_name, c.surname AS customer_surname, c.address FROM shipments s JOIN customers c ON s.customer_id = c.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getShipments(true, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT s.id, s.name, s.weight, s.value, c.name AS customer_name, c.surname AS customer_surname, c.address FROM shipments s JOIN customers c ON s.customer_id = c.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should retrieve all shipments without dereference', (done) => {
+        const mockShipments = [
+            { id: 1, name: 'Electronics Parts', weight: 22, value: 30000, customer_id: 1 },
+            { id: 2, name: 'Furniture', weight: 50, value: 50000, customer_id: 2 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockShipments);
+        });
+
+        Transporter.getShipments(false, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockShipments);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM shipments',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getShipments(false, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM shipments',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+describe('Transporter.getShipment', ()=>{
+    it('should retrieve a single shipments with dereference', (done) => {
+        const shipmentID = 1;
+        const mockShipment = [{ id: 1, name: 'Electronics Parts', weight: 22, value: 30000, customer_id: 1 }];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockShipment);
+        });
+
+        Transporter.getShipment(shipmentID,true, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockShipment);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT s.id, s.name, s.customer_id, s.weight, s.value, c.name AS customer_name, c.surname AS customer_surname, c.address FROM shipments s JOIN customers c ON s.customer_id = c.id WHERE s.id = ?',
+                shipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should retrieve a single shipment without dereference', (done) => {
+        const shipmentID = 1;
+        const mockShipment = [{ id: 1, name: 'Electronics Parts', weight: 22, value: 30000, customer_id: 1 }];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockShipment);
+        });
+
+        Transporter.getShipment(shipmentID,false, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockShipment);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM shipments WHERE id = ?',
+                shipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const shipmentID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getShipment(shipmentID,true, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT s.id, s.name, s.customer_id, s.weight, s.value, c.name AS customer_name, c.surname AS customer_surname, c.address FROM shipments s JOIN customers c ON s.customer_id = c.id WHERE s.id = ?',
+                shipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const shipmentID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getShipment(shipmentID,false, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM shipments WHERE id = ?',
+                shipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// UPDATE SHIPMENT
+describe('Transporter.updateShipment', () => {
+    it('should update a shipment and return the result', (done) => {
+        const shipmentID = 1;
+        const name = 'Electronics Parts';
+        const weight = 22;
+        const value = 30000;
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.updateShipment(shipmentID, name, weight, value, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE shipments SET name = ? , weight = ?, value = ? WHERE id = ?',
+                [name, weight, value, shipmentID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const shipmentID = 1;
+        const name = 'Electronics Parts';
+        const weight = 22;
+        const value = 30000;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.updateShipment(shipmentID, name, weight, value, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE shipments SET name = ? , weight = ?, value = ? WHERE id = ?',
+                [name, weight, value, shipmentID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+/********************************************TRIP TESTS*******************************************/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/********************************************REPAIR TESTS*******************************************/
+/********************************************SHIPMENT_TRIP TESTS*******************************************/

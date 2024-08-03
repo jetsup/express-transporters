@@ -8,7 +8,7 @@ export const Transporter = {
             `INSERT INTO brands (name) VALUES (?)`, brand,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -19,7 +19,7 @@ export const Transporter = {
     getBrands: (callback: any) => {
         con.query(`SELECT * FROM brands`, (err: MysqlError | null, result: any) => {
             if (err) {
-                console.error("Error:", err);
+
                 callback(err, null);
                 return;
             }
@@ -30,7 +30,7 @@ export const Transporter = {
     updateBrand: (brandID: number, brand: string, callback: any) => {
         con.query(`UPDATE brands SET name = ? WHERE id = ?`, [brand, brandID], (err: MysqlError | null, result: any) => {
             if (err) {
-                console.error("Error:", err);
+
                 callback(err, null);
                 return;
             }
@@ -40,7 +40,7 @@ export const Transporter = {
     deleteBrand: (brandID: number, callback: any) => {
         con.query(`DELETE FROM brands WHERE id = ?`, brandID, (err: MysqlError | null, result: any) => {
             if (err) {
-                console.error("Error:", err);
+
                 callback(err, null);
                 return;
             }
@@ -51,7 +51,7 @@ export const Transporter = {
     getSeniorities: (callback: any) => {
         con.query(`SELECT * FROM seniorities`, (err: MysqlError | null, result: any) => {
             if (err) {
-                console.error("Error:", err);
+
                 callback(err, null);
                 return;
             }
@@ -66,7 +66,7 @@ export const Transporter = {
             [brand, load, capacity, year, repairs],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -80,7 +80,7 @@ export const Transporter = {
                 `SELECT t.id, b.name AS brand, t.truck_load, t.capacity, t.year, t.repairs FROM trucks t JOIN brands b ON b.id=t.brand`
                 : `SELECT * FROM trucks`, (err: MysqlError | null, result: any) => {
                     if (err) {
-                        console.error(err);
+
                         callback(err, null);
                         return;
                     }
@@ -95,7 +95,7 @@ export const Transporter = {
             truckID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -109,7 +109,7 @@ export const Transporter = {
             [brand, load, capacity, year, repairs, truckID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -120,7 +120,7 @@ export const Transporter = {
     deleteTruck: (truckID: number, callback: any) => {
         con.query(`DELETE from trucks WHERE id = ?`, truckID, (err: MysqlError | null, result: any) => {
             if (err) {
-                console.error(err);
+
                 callback(err, null);
                 return;
             }
@@ -133,7 +133,7 @@ export const Transporter = {
             `INSERT INTO employees (name, surname, seniority) VALUES (?, ?, ?)`, [name, surname, seniority],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -147,7 +147,7 @@ export const Transporter = {
                 `SELECT e.id, e.name, e.surname, s.seniority FROM employees e JOIN seniorities s ON e.seniority = s.id` :
                 `SELECT * FROM employees`, (err: MysqlError | null, result: any) => {
                     if (err) {
-                        console.error(err);
+
                         callback(err, null);
                         return;
                     }
@@ -162,7 +162,7 @@ export const Transporter = {
                 `SELECT e.id, e.name, e.surname, s.seniority FROM employees e JOIN seniorities s ON e.seniority = s.id WHERE e.id = ?` :
                 `SELECT * FROM employees WHERE id = ?`, employeeID, (err: MysqlError | null, result: any) => {
                     if (err) {
-                        console.error(err);
+
                         callback(err, null);
                         return;
                     }
@@ -176,7 +176,7 @@ export const Transporter = {
             `UPDATE employees SET name = ?, surname = ?, seniority = ? WHERE id = ?`, [name, surname, seniority, employeeID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -187,7 +187,7 @@ export const Transporter = {
     deleteEmployee: (employeeID: number, callback: any) => {
         con.query(`DELETE FROM employees WHERE id = ?`, employeeID, (err: MysqlError | null, result: any) => {
             if (err) {
-                console.error("Error:", err);
+
                 callback(err, null);
                 return;
             }
@@ -200,7 +200,7 @@ export const Transporter = {
             `INSERT INTO drivers (employee_id, category) VALUES (?, ?)`, [employeeID, category],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -211,7 +211,7 @@ export const Transporter = {
     getDriverCategories: (callback: any) => {
         con.query(`SELECT * from categories`, (err: MysqlError | null, result: any) => {
             if (err) {
-                console.error(err);
+
                 callback(err, null);
                 return;
             }
@@ -226,7 +226,7 @@ export const Transporter = {
                 `SELECT * FROM drivers WHERE id = ?`, driverID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -242,7 +242,7 @@ export const Transporter = {
                 `SELECT * FROM drivers`,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -256,7 +256,7 @@ export const Transporter = {
             `UPDATE drivers SET category = ? WHERE id = ?`, [category, driverID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -269,7 +269,7 @@ export const Transporter = {
             `DELETE FROM drivers WHERE id = ?`, driverID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -282,7 +282,7 @@ export const Transporter = {
             `INSERT INTO mechanics (employee_id, brand_specialized) VALUES (?, ?)`, [employeeID, specializedBrand],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -297,7 +297,7 @@ export const Transporter = {
                 `SELECT * FROM mechanics WHERE id = ?`, mechanicID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -313,7 +313,7 @@ export const Transporter = {
                 `SELECT * FROM mechanics`,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -327,7 +327,7 @@ export const Transporter = {
             `UPDATE mechanics SET brand_specialized = ? WHERE id = ?`, [specializedBrand, mechanicID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -340,7 +340,7 @@ export const Transporter = {
             `DELETE FROM mechanics WHERE id = ?`, mechanicID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -353,7 +353,7 @@ export const Transporter = {
             `INSERT INTO repairs (truck_id, mechanic_id, estimated_time) VALUES (?, ?, ?)`, [truckID, mechanicID, estimatedTime],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -365,7 +365,7 @@ export const Transporter = {
         con.query(
             `SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id`, (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -380,7 +380,7 @@ export const Transporter = {
             `INSERT INTO customers (name, surname, address, phone1, phone2) VALUES (?, ?, ?, ?, ?)`, [name, surname, address, phone1, phone2],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -392,7 +392,6 @@ export const Transporter = {
         con.query(
             `SELECT * FROM customers WHERE id = ?`, customerID, (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
                     callback(err, null);
                     return;
                 }
@@ -405,7 +404,6 @@ export const Transporter = {
         con.query(
             `SELECT * FROM customers`, (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
                     callback(err, null);
                     return;
                 }
@@ -419,7 +417,6 @@ export const Transporter = {
             `UPDATE customers SET name = ?, surname = ?, address = ?, phone1 = ?, phone2 = ? WHERE id = ?`, [name, surname, address, phone1, phone2, customerID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
                     callback(err, null);
                     return;
                 }
@@ -432,7 +429,7 @@ export const Transporter = {
             `DELETE FROM customers WHERE id = ?`, customerID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -445,7 +442,7 @@ export const Transporter = {
             `INSERT INTO shipments (name, weight, value, customer_id) VALUES (?, ?, ?, ?)`, [name, weight, value, customerID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -459,7 +456,7 @@ export const Transporter = {
                 `SELECT s.id, s.name, s.customer_id, s.weight, s.value, c.name AS customer_name, c.surname AS customer_surname, c.address FROM shipments s JOIN customers c ON s.customer_id = c.id WHERE s.id = ?` :
                 `SELECT * FROM shipments WHERE id = ?`, shipmentID, (err: MysqlError | null, result: any) => {
                     if (err) {
-                        console.error(err);
+
                         callback(err, null);
                         return;
                     }
@@ -475,7 +472,7 @@ export const Transporter = {
                 `SELECT * FROM shipments`,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -489,7 +486,7 @@ export const Transporter = {
             `UPDATE shipments SET name = ? , weight = ?, value = ? WHERE id = ?`, [name, weight, value, shipmentID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -502,7 +499,7 @@ export const Transporter = {
             `DELETE FROM shipments WHERE id = ?`, shipmentID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -521,7 +518,7 @@ export const Transporter = {
             `INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)`, [routeFrom, routeTo, driver1ID, driver2ID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
@@ -533,7 +530,7 @@ export const Transporter = {
         con.query(
             `SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id`, (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error(err);
+
                     callback(err, null);
                     return;
                 }
@@ -547,7 +544,7 @@ export const Transporter = {
             `INSERT INTO trip_shipments (trip_id, shipment_id) VALUES (?, ?)`, [tripID, shipmentID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-                    console.error("Error:", err);
+
                     callback(err, null);
                     return;
                 }
