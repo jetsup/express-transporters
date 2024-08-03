@@ -1,8 +1,12 @@
 import express from 'express';
 import {
-    homeRouter,
+    // homeRouter,
+
     brandCreateRouter,
+    brandViewRouter,
     brandCreatePostRouter,
+    brandDeleteRouter,
+    brandsAPIRouter,
     // truck
     truckCreateRouter,
     truckEditRouter,
@@ -57,7 +61,14 @@ import {
     // trip
     tripCreateRouter,
     tripViewRouter,
-    // shipment trip
+    // cargo
+    cargoCreateRouter,
+    cargoCreatePostRouter,
+    cargoViewRouter,
+    // cargoEditRouter,
+    // cargoUpdateRouter,
+    // cargoDeleteRouter,
+    cargoAPIRouter,
 } from '../routes/index';
 import path from 'path';
 
@@ -72,9 +83,13 @@ app.set('views', path.join(__dirname, '../pages')); // Set the directory for you
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use('/', homeRouter);
+// app.use('/', homeRouter);
+
 app.use('/', brandCreateRouter);
+app.use('/', brandViewRouter);
 app.use('/', brandCreatePostRouter);
+app.use('/', brandDeleteRouter);
+app.use('/', brandsAPIRouter);
 
 app.use('/', truckCreateRouter);
 app.use('/', truckEditRouter);
@@ -132,6 +147,14 @@ app.use('/', tripViewRouter);
 
 app.use('/', shipmentCreateRouter);
 app.use('/', shipmentViewRouter);
+
+app.use('/', cargoCreateRouter);
+app.use('/', cargoCreatePostRouter);
+app.use('/', cargoViewRouter);
+// app.use('/', cargoEditRouter);
+// app.use('/', cargoUpdateRouter);
+// app.use('/', cargoDeleteRouter);
+app.use('/', cargoAPIRouter);
 
 // static files
 // app.use(express.static(path.join(__dirname, '../../public')));

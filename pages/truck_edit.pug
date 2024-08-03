@@ -4,6 +4,8 @@ head
   title=title 
   link(href='/css/bootstrap.css' rel='stylesheet')
 
+include components/navbar.pug
+
 h1.text-center #{truck.brand} <i>#{truck.year} Model</i>
 
 form(method="POST" action="/truck/update/"+truck.id)
@@ -31,3 +33,5 @@ form(method="POST" action="/truck/update/"+truck.id)
       label(for='truck-repairs') Repairs Done
       input#truck-repairs.form-control(type='number' name="repairs" placeholder='Enter the number of repairs the truck has undergone' min="0" value=truck.repairs required)
   button.btn.btn-primary.m-3(type='submit') Update
+
+script(src='/js/bootstrap.bundle.min.js' type='module')

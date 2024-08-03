@@ -557,10 +557,13 @@ export const Transporter = {
         );
     },
     /**TRIPS*/
-    createTrip: (routeFrom: string, routeTo: string, driver1ID: number, driver2ID: number = -1, callback: any) => {
+    createTrip: (routeFrom: string, routeTo: string, driver1ID: number, driver2ID: number | null, callback: any) => {
+        console.log("Q2:", driver2ID);
         con.query(
-            `INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)`,
-            [routeFrom, routeTo, driver1ID, driver2ID],
+            (driver2ID == -1 || driver2ID == null) ?
+                `INSERT INTO trips (route_from, route_to, driver1_id) VALUES (?, ?, ?)` :
+                `INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)`,
+            (driver2ID == -1 || driver2ID == null) ? [routeFrom, routeTo, driver1ID] : [routeFrom, routeTo, driver1ID, driver2ID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
                     callback(err, null);
@@ -626,7 +629,7 @@ export const Transporter = {
     /**TRIP SHIPMENTS*/
     createTripShipment: (tripID: number, shipmentID: number, callback: any) => {
         con.query(
-            `INSERT INTO trip_shipments (trip_id, shipment_id) VALUES (?, ?)`, [tripID, shipmentID],
+            `INSERT INTO shipment_trips (trip_id, shipment_id) VALUES (?, ?)`, [tripID, shipmentID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
                     callback(err, null);
@@ -638,7 +641,7 @@ export const Transporter = {
     },
     getTripShipment: (trShipmentID: number, callback: any) => {
         con.query(
-            `SELECT * FROM trip_shipments WHERE id = ?`, trShipmentID, (err: MysqlError | null, result: any) => {
+            `SELECT * FROM shipment_trips WHERE id = ?`, trShipmentID, (err: MysqlError | null, result: any) => {
                 if (err) {
                     callback(err, null);
                     return;
@@ -650,7 +653,7 @@ export const Transporter = {
     },
     getTripShipments: (callback: any) => {
         con.query(
-            `SELECT * FROM trip_shipments`, (err: MysqlError | null, result: any) => {
+            `SELECT * FROM shipment_trips`, (err: MysqlError | null, result: any) => {
                 if (err) {
                     callback(err, null);
                     return;
@@ -662,7 +665,7 @@ export const Transporter = {
     },
     updateTripShipment: (trShipmentID: number, tripID: number, shipmentID: number, callback: any) => {
         con.query(
-            `UPDATE trip_shipments SET trip_id = ?, shipment_id = ? WHERE id = ?`, [tripID, shipmentID, trShipmentID],
+            `UPDATE shipment_trips SET trip_id = ?, shipment_id = ? WHERE id = ?`, [tripID, shipmentID, trShipmentID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
                     callback(err, null);
@@ -674,7 +677,7 @@ export const Transporter = {
     },
     deleteTripShipment: (trShipmentID: number, callback: any) => {
         con.query(
-            `DELETE FROM trip_shipments WHERE id = ?`, trShipmentID,
+            `DELETE FROM shipment_trips WHERE id = ?`, trShipmentID,
             (err: MysqlError | null, result: any) => {
                 if (err) {
                     callback(err, null);
@@ -683,5 +686,25 @@ export const Transporter = {
                 callback(null, result);
             }
         );
+    },
+    // Utility Query
+    getCargos: (callback: any) => {
+        con.query(
+            `SELECT s.name AS package_name, s.weight, s.value, t.route_from, t.route_to, c.name, c.surname, c.address, e.name AS driver1_name, e.surname AS driver1_surname, e2.name AS driver2_name, e2.surname AS driver2_surname
+            FROM shipment_trips st
+            JOIN shipments s ON st.shipment_id = s.id
+            JOIN trips t ON st.trip_id = t.id
+            JOIN customers c ON s.customer_id = c.id
+            JOIN employees e ON t.driver1_id = e.id
+            LEFT JOIN employees e2 ON t.driver2_id = e2.id`,
+            (err: MysqlError | null, result: any) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                const plainResult = result.map((row: any) => ({ ...row })); // without the RowDataPacket wrapper
+                callback(null, plainResult);
+            }
+        )
     },
 };

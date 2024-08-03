@@ -1,16 +1,148 @@
-import { MysqlError } from "mysql";
+import { MysqlError, OkPacket } from "mysql";
 import { Transporter } from "../src/db/queries";
 import express from "express";
 
-export const homeRouter = express.Router().
-    get("/", async (req, res, next) => {
-        // TODO: get all the transport diary entries
 
-        res.render("index", {
-            title: "Homey",
-            // diary: transportDiary,
+// CARGO
+export const cargoCreateRouter = express.Router().get("/cargo/create", async (req, res, next) => {
+    const customers = await new Promise((resolve, reject) => {
+        Transporter.getCustomers((err: MysqlError | null, result: any) => {
+            if (err) {
+                // reject(err);
+                res.json({ error: `An error occurred -> ${err.message}` });
+                return;
+            }
+            resolve(result);
         });
     });
+
+    const drivers = await new Promise((resolve, reject) => {
+        Transporter.getDrivers(true, (err: MysqlError | null, result: any) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(result);
+        });
+    });
+
+    res.render("cargo_create", {
+        title: "Create Cargo",
+        customers: customers,
+        drivers: drivers,
+    });
+});
+
+export const cargoCreatePostRouter = express.Router().post("/cargo/create", async (req, res, next) => {
+    const reqBody = req.body;
+    const customer: number = reqBody.customer;
+    const shipmentName: string = reqBody.shipment_name;
+    const weight: number = reqBody.weight;
+    const value: number = reqBody.value;
+    const origin: string = reqBody.origin;
+    const destination: string = reqBody.destination;
+    const driver1: number = reqBody.driver1;
+    let driver2: number | null = reqBody.driver2;
+
+    // return await new Promise((resolve, reject) => {
+    let shipment: number = -1;
+    let trip: number = -1;
+
+    return await new Promise((resolve, reject) => {
+        Transporter.createShipment(shipmentName, weight, value, customer, (err: MysqlError | null, result: any) => {
+            if (err) {
+                // reject(err);
+                res.json({ error: `An error occurred -> ${err.message}` });
+                return;
+            }
+            resolve(result);
+
+            console.log("Res:", result)
+            shipment = result.insertId;
+            console.log("insertID", shipment)
+
+
+            if (driver2 == -1) driver2 = null;
+            console.log("Driver2: ", driver2)
+            Transporter.createTrip(origin, destination, driver1, driver2, (err: MysqlError | null, result: any) => {
+                if (err) {
+                    // reject(err);
+                    res.json({ error: `An error occurred -> ${err.message}` });
+                    return;
+                }
+                resolve(result);
+
+                trip = result.insertId;
+
+                console.log("Trip:", trip, "Shipment:", shipment);
+                Transporter.createTripShipment(trip, shipment, (err: MysqlError | null, result: any) => {
+                    if (err) {
+                        // reject(err);
+                        res.json({ error: `An error occurred -> ${err.message}` });
+                        return;
+                    }
+                    resolve(result);
+
+                    let prevUrl: string = (req.headers["referer"] === undefined) ? "/" : req.headers["referer"];
+                    res.redirect(prevUrl)
+                });
+            });
+        });
+    });
+});
+
+export const cargoViewRouter = express.Router().get("/", async (req, res, next) => {
+    const customers = await new Promise((resolve, reject) => {
+        Transporter.getCustomers((err: MysqlError | null, result: any) => {
+            if (err) {
+                // reject(err);
+                res.json({ error: `An error occurred -> ${err.message}` });
+                return;
+            }
+            resolve(result);
+        });
+    });
+
+    const drivers = await new Promise((resolve, reject) => {
+        Transporter.getDrivers(true, (err: MysqlError | null, result: any) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(result);
+        });
+    });
+
+    res.render("cargo_view", {
+        title: "Express Transporters",
+        customers: customers,
+        drivers: drivers,
+    });
+});
+
+export const cargoAPIRouter = express.Router().get("/api/cargos", async (req, res, next) => {
+    const cargos = await new Promise((resolve, reject) => {
+        Transporter.getCargos((err: MysqlError | null, result: any) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(result);
+        });
+    });
+
+    console.log(cargos)
+    res.json(cargos);
+});
+// export const homeRouter = express.Router().
+//     get("/", async (req, res, next) => {
+//         // TODO: get all the transport diary entries
+
+//         res.render("index", {
+//             title: "Homey",
+//             // diary: transportDiary,
+//         });
+//     });
 
 // Brand
 export const brandCreateRouter = express.Router().get("/brand/create", (req, res, next) => {
@@ -37,6 +169,41 @@ export const brandCreatePostRouter = express.Router().post("/brand/create", asyn
         let prevUrl: string = (req.headers["referer"] === undefined) ? "/" : req.headers["referer"];
         res.redirect(prevUrl);
     });
+});
+
+export const brandDeleteRouter = express.Router().post("/brand/delete/:truckID", async (req, res, next) => {
+    await new Promise((resolve, reject) => {
+        Transporter.deleteBrand(Number(req.params.truckID), (err: MysqlError | null, result: any) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(result);
+        });
+    });
+
+    let prevUrl: string = (req.headers["referer"] === undefined) ? "/" : req.headers["referer"];
+    res.redirect(prevUrl);
+});
+
+export const brandViewRouter = express.Router().get("/brand/view", (req, res, next) => {
+    res.render("brand_view", {
+        title: "View Brand"
+    });
+});
+
+export const brandsAPIRouter = express.Router().get("/api/brands", async (req, res, next) => {
+    const trucks = await new Promise((resolve, reject) => {
+        Transporter.getBrands((err: MysqlError | null, result: any) => {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(result);
+        });
+    });
+
+    res.json(trucks);
 });
 
 // Truck
@@ -465,7 +632,7 @@ export const driverDeleteRouter = express.Router().post("/driver/delete/:driverI
 
 
 export const driverAPIRouter = express.Router().get("/api/driver", async (req, res, next) => {
-    const trucks = await new Promise((resolve, reject) => {
+    const drivers = await new Promise((resolve, reject) => {
         Transporter.getDrivers(true, (err: MysqlError | null, result: any) => {
             if (err) {
                 reject(err);
@@ -475,7 +642,7 @@ export const driverAPIRouter = express.Router().get("/api/driver", async (req, r
         });
     });
 
-    res.json(trucks);
+    res.json(drivers);
 });
 
 // Mechanic
@@ -852,6 +1019,7 @@ export const shipmentUpdateRouter = express.Router().post("/shipment/view/:shipm
     });
 });
 
+// TODO: REMOVE BELOW CODE
 export const shipmentDeleteRouter = express.Router().post("/shipment/delete/:shipmentID", async (req, res, next) => {
     return await new Promise((resolve, reject) => {
         const reqBody = req.body;
@@ -872,7 +1040,7 @@ export const shipmentDeleteRouter = express.Router().post("/shipment/delete/:shi
 });
 
 export const shipmentAPIRouter = express.Router().get("/api/shipment", async (req, res, next) => {
-    const customers = await new Promise((resolve, reject) => {
+    const shipments = await new Promise((resolve, reject) => {
         Transporter.getShipments(true, (err: MysqlError | null, result: any) => {
             if (err) {
                 reject(err);
@@ -882,8 +1050,8 @@ export const shipmentAPIRouter = express.Router().get("/api/shipment", async (re
         });
     });
 
-    console.log(customers)
-    res.json(customers);
+    console.log(shipments)
+    res.json(shipments);
 });
 
 export const tripCreateRouter = express.Router().get("/trip/create", async (req, res, next) => {

@@ -1,0 +1,38 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+  link(href='/css/dataTables.dataTables.css' rel='stylesheet')
+  script(src='/js/jquery.js')
+  script(src='/js/dataTables.js')
+  script(src='/js/transporter-utils-cargo.js' type="module")
+
+include components/navbar.pug
+
+body.px-3
+  table#cargo-table.col-md-10.table.table-striped.table-bordered.table-hover
+    thead 
+      tr 
+        //- th Cargo ID
+        th Package Name
+        th Weight 
+        th Value 
+        th Origin
+        th Destination
+        th Owner 
+        th Driver 1
+        th Driver 2
+        th Action
+    tbody 
+  .dropup.position-absolute.bottom-0.end-0.rounded-circle.m-5
+    button.btn.bg-success
+      a.dropdown-item(href='/cargo/create') +
+
+
+script(src='/js/bootstrap.bundle.min.js' type='module')
+
+script(type="module").
+  import populateCargos from '/js/transporter-utils-cargo.js';
+
+  populateCargos();

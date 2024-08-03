@@ -1,0 +1,63 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  title=title 
+  link(href='/css/bootstrap.css' rel='stylesheet')
+
+include components/navbar.pug
+
+form(method="POST" onsubmit='return validateDrivers()')
+  h2.text-center Shipment Information
+  .row.mx-3
+    .form-group.col-md-6
+      label(for='customer') Customer
+      select#customer.form-control(name="customer" required)
+        each customer of customers
+          option(value=customer.id) #{customer.name} #{customer.surname} (#{customer.address})
+    .form-group.col-md-6
+      label(for='shipment_name') Package Name
+      input#shipment_name.form-control(type='text' name="shipment_name" placeholder="Package's Name" required)
+       
+  .row.m-3
+    .form-group.col-md-6
+      label(for='weight') Weight
+      input#weight.form-control(type='number' name="weight" min="0" max="1000" value="0" required)
+    .form-group.col-md-6
+      label(for='value') Value
+      input#value.form-control(type='number' name="value" placeholder='Phone' min="0" max="10000" value="0" required)
+  h2.text-center Route Information
+  .row.m-3 
+    .form-group.col-md-6
+      label(for='origin') Origin
+      input#origin.form-control(type='text' name="origin" placeholder='Enter the origin of the shipment' required)
+    .form-group.col-md-6
+      label(for='destination') Destination
+      input#destination.form-control(type='text' name="destination" placeholder='Enter the destination of the shipment' required)
+  h2.text-center Drivers 
+  .row.m-3 
+    .form-group.col-md-6
+      label(for='driver1') Driver1
+      select#driver1.form-control(name="driver1" required)
+        each driver of drivers
+          option(value=driver.id) #{driver.name} #{driver.surname}
+    .form-group.col-md-6
+      label(for='driver2') Driver2
+      select#driver2.form-control(name="driver2" required)
+        option(value='-1') Driver 2 not assigned
+        each driver of drivers
+          option(value=driver.id) #{driver.name} #{driver.surname}
+  button.btn.btn-primary.m-3(type='submit') Create
+
+script(src='/js/bootstrap.bundle.min.js' type='module')
+script.
+  function validateDrivers() {
+    const driver1Select = document.getElementById('driver1');
+    const driver2Select = document.getElementById('driver2');
+    
+    if (driver1Select.value === driver2Select.value) {
+        alert("Driver 1 and Driver 2 cannot be the same person. Please choose different drivers.");
+        return false;
+    }
+    
+    return true;
+  }

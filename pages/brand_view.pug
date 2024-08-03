@@ -6,22 +6,22 @@ head
   link(href='/css/dataTables.dataTables.css' rel='stylesheet')
   script(src='/js/jquery.js')
   script(src='/js/dataTables.js')
-  script(src='/js/transporter-utils-mechanic.js' type="module")
+  script(src='/js/transporter-utils-brand.js' type="module")
 
 include components/navbar.pug
 
 body.px-3
-  table#mechanic-table.col-md-10.table.table-striped.table-bordered.table-hover
+  table#brand-table.col-md-10.table.table-striped.table-bordered.table-hover
     thead 
       tr 
-        th First Name 
-        th Surname 
-        th Specialization 
+        //- th Brand ID
+        th Brand
         th Action
     tbody 
 
 script(src='/js/bootstrap.bundle.min.js' type='module')
 
 script(type="module").
-  import populateMechanics from '/js/transporter-utils-mechanic.js';
-  populateMechanics();
+  import populateBrands from '/js/transporter-utils-brand.js';
+
+  populateBrands();

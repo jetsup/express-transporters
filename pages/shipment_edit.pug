@@ -4,6 +4,8 @@ head
   title=title 
   link(href='/css/bootstrap.css' rel='stylesheet')
 
+include components/navbar.pug
+
 form(method="POST")
   
   .row.mx-3
@@ -25,4 +27,4 @@ form(method="POST")
 
   button.btn.btn-primary.m-3(type='submit') Create
 
-script(src='/js/bootstrap.js' type='module')
+script(src='/js/bootstrap.bundle.min.js' type='module')

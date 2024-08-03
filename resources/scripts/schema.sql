@@ -103,7 +103,7 @@ CREATE TABLE IF NOT EXISTS `trips` (
     `route_to` VARCHAR(20) NOT NULL,
     `driver1_id` INT NOT NULL,
     -- -1 if there is no second driver
-    `driver2_id` INT NOT NULL DEFAULT -1,
+    `driver2_id` INT NULL DEFAULT NULL,
     FOREIGN KEY (`driver1_id`) REFERENCES `drivers`(`id`) ON DELETE CASCADE,
     FOREIGN KEY (`driver2_id`) REFERENCES `drivers`(`id`) ON DELETE CASCADE
 );

@@ -1725,7 +1725,7 @@ describe('Transporter.updateShipment', () => {
 /********************************************TRIP TESTS*******************************************/
 // CREATE TRIP
 describe('Transporter.createTrip', () => {
-    it('should insert a trip and return result', (done) => {
+    it('should insert a trip with one driver and return result', (done) => {
         const routeFrom = "Shelbyville";
         const routeTo = "Springfield";
         const driver1ID = 672;
@@ -1733,22 +1733,39 @@ describe('Transporter.createTrip', () => {
         const mockTrip = [{ insertId: 1 }];
 
         (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            expect(query).toBe(`INSERT INTO trips (route_from, route_to, driver1_id) VALUES (?, ?, ?)`);
+            expect(values).toEqual([routeFrom, routeTo, driver1ID]);
             callback(null, mockTrip);
         });
 
         Transporter.createTrip(routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
             expect(err).toBeNull();
             expect(result).toEqual(mockTrip);
-            expect(con.query).toHaveBeenCalledWith(
-                'INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)',
-                [routeFrom, routeTo, driver1ID, driver2ID],
-                expect.any(Function)
-            );
             done();
         });
     });
 
-    it('should return an error when the query fails', (done) => {
+    it('should insert a trip with two drivers and return result', (done) => {
+        const routeFrom = "Shelbyville";
+        const routeTo = "Springfield";
+        const driver1ID = 672;
+        const driver2ID = 789;
+        const mockTrip = [{ insertId: 1 }];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            expect(query).toBe(`INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)`);
+            expect(values).toEqual([routeFrom, routeTo, driver1ID, driver2ID]);
+            callback(null, mockTrip);
+        });
+
+        Transporter.createTrip(routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockTrip);
+            done();
+        });
+    });
+
+    it('should return an error when the query fails to insert one driver', (done) => {
         const routeFrom = "Shelbyville";
         const routeTo = "Springfield";
         const driver1ID = 672;
@@ -1756,17 +1773,34 @@ describe('Transporter.createTrip', () => {
         const mockError = new Error('Test Error');
 
         (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            expect(query).toBe(`INSERT INTO trips (route_from, route_to, driver1_id) VALUES (?, ?, ?)`);
+            expect(values).toEqual([routeFrom, routeTo, driver1ID]);
             callback(mockError, null);
         });
 
         Transporter.createTrip(routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
             expect(err).toBe(mockError);
             expect(result).toBeNull();
-            expect(con.query).toHaveBeenCalledWith(
-                'INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)',
-                [routeFrom, routeTo, driver1ID, driver2ID],
-                expect.any(Function)
-            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails to insert two drivers', (done) => {
+        const routeFrom = "Shelbyville";
+        const routeTo = "Springfield";
+        const driver1ID = 672;
+        const driver2ID = 789;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            expect(query).toBe(`INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)`);
+            expect(values).toEqual([routeFrom, routeTo, driver1ID, driver2ID]);
+            callback(mockError, null);
+        });
+
+        Transporter.createTrip(routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
             done();
         });
     });
@@ -2352,7 +2386,7 @@ describe('Transporter.createTripShipment', () => {
             expect(err).toBeNull();
             expect(result).toEqual(mockResult);
             expect(con.query).toHaveBeenCalledWith(
-                'INSERT INTO trip_shipments (trip_id, shipment_id) VALUES (?, ?)',
+                'INSERT INTO shipment_trips (trip_id, shipment_id) VALUES (?, ?)',
                 [tripID, shipmentID],
                 expect.any(Function)
             );
@@ -2373,7 +2407,7 @@ describe('Transporter.createTripShipment', () => {
             expect(err).toBe(mockError);
             expect(result).toBeNull();
             expect(con.query).toHaveBeenCalledWith(
-                'INSERT INTO trip_shipments (trip_id, shipment_id) VALUES (?, ?)',
+                'INSERT INTO shipment_trips (trip_id, shipment_id) VALUES (?, ?)',
                 [tripID, shipmentID],
                 expect.any(Function)
             );
@@ -2398,7 +2432,7 @@ describe('Transporter.getTripShipment', () => {
             expect(err).toBeNull();
             expect(result).toEqual(mockTripShipment);
             expect(con.query).toHaveBeenCalledWith(
-                'SELECT * FROM trip_shipments WHERE id = ?',
+                'SELECT * FROM shipment_trips WHERE id = ?',
                 tripShipmentID,
                 expect.any(Function)
             );
@@ -2418,7 +2452,7 @@ describe('Transporter.getTripShipment', () => {
             expect(err).toBe(mockError);
             expect(result).toBeNull();
             expect(con.query).toHaveBeenCalledWith(
-                'SELECT * FROM trip_shipments WHERE id = ?',
+                'SELECT * FROM shipment_trips WHERE id = ?',
                 tripShipmentID,
                 expect.any(Function)
             );
@@ -2428,7 +2462,7 @@ describe('Transporter.getTripShipment', () => {
 });
 
 describe('Transporter.getTripShipments', () => {
-    it('should retrieve all trip_shipments', (done) => {
+    it('should retrieve all shipment_trips', (done) => {
         const mockTripShipments = [
             { id: 1, shipment_id: 121, trip_id: 12 },
             { id: 3, shipment_id: 221, trip_id: 13 },
@@ -2442,7 +2476,7 @@ describe('Transporter.getTripShipments', () => {
             expect(err).toBeNull();
             expect(results).toEqual(mockTripShipments);
             expect(con.query).toHaveBeenCalledWith(
-                'SELECT * FROM trip_shipments',
+                'SELECT * FROM shipment_trips',
                 expect.any(Function)
             );
             done();
@@ -2460,7 +2494,7 @@ describe('Transporter.getTripShipments', () => {
             expect(err).toBe(mockError);
             expect(results).toBeNull();
             expect(con.query).toHaveBeenCalledWith(
-                'SELECT * FROM trip_shipments',
+                'SELECT * FROM shipment_trips',
                 expect.any(Function)
             );
             done();
@@ -2484,7 +2518,7 @@ describe('Transporter.updateTripShipment', () => {
             expect(err).toBeNull();
             expect(result).toEqual(mockResult);
             expect(con.query).toHaveBeenCalledWith(
-                'UPDATE trip_shipments SET trip_id = ?, shipment_id = ? WHERE id = ?',
+                'UPDATE shipment_trips SET trip_id = ?, shipment_id = ? WHERE id = ?',
                 [tripID, shipmentID, tripShipmentID],
                 expect.any(Function)
             );
@@ -2506,7 +2540,7 @@ describe('Transporter.updateTripShipment', () => {
             expect(err).toBe(mockError);
             expect(result).toBeNull();
             expect(con.query).toHaveBeenCalledWith(
-                'UPDATE trip_shipments SET trip_id = ?, shipment_id = ? WHERE id = ?',
+                'UPDATE shipment_trips SET trip_id = ?, shipment_id = ? WHERE id = ?',
                 [tripID, shipmentID, tripShipmentID],
                 expect.any(Function)
             );
@@ -2529,7 +2563,7 @@ describe('Transporter.deleteTripShipment', () => {
             expect(err).toBeNull();
             expect(result).toEqual(mockResult);
             expect(con.query).toHaveBeenCalledWith(
-                'DELETE FROM trip_shipments WHERE id = ?',
+                'DELETE FROM shipment_trips WHERE id = ?',
                 trShipmentID,
                 expect.any(Function)
             );
@@ -2549,7 +2583,7 @@ describe('Transporter.deleteTripShipment', () => {
             expect(err).toBe(mockError);
             expect(result).toBeNull();
             expect(con.query).toHaveBeenCalledWith(
-                'DELETE FROM trip_shipments WHERE id = ?',
+                'DELETE FROM shipment_trips WHERE id = ?',
                 trShipmentID,
                 expect.any(Function)
             );

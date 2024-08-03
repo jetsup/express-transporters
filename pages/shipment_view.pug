@@ -8,6 +8,8 @@ head
   script(src='/js/dataTables.js')
   script(src='/js/transporter-utils-shipment.js' type="module")
 
+include components/navbar.pug
+
 body.px-3
   table#shipment-table.col-md-10.table.table-striped.table-bordered.table-hover
     thead 
@@ -20,7 +22,7 @@ body.px-3
         th Action
     tbody 
 
-script(src='/js/bootstrap.js' type='module')
+script(src='/js/bootstrap.bundle.min.js' type='module')
 
 script(type="module").
   import populateShipments from '/js/transporter-utils-shipment.js';
