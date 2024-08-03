@@ -1591,7 +1591,7 @@ describe('Transporter.getShipments', () => {
     });
 });
 
-describe('Transporter.getShipment', ()=>{
+describe('Transporter.getShipment', () => {
     it('should retrieve a single shipments with dereference', (done) => {
         const shipmentID = 1;
         const mockShipment = [{ id: 1, name: 'Electronics Parts', weight: 22, value: 30000, customer_id: 1 }];
@@ -1600,7 +1600,7 @@ describe('Transporter.getShipment', ()=>{
             callback(null, mockShipment);
         });
 
-        Transporter.getShipment(shipmentID,true, (err: MysqlError | null, results: any) => {
+        Transporter.getShipment(shipmentID, true, (err: MysqlError | null, results: any) => {
             expect(err).toBeNull();
             expect(results).toEqual(mockShipment);
             expect(con.query).toHaveBeenCalledWith(
@@ -1620,7 +1620,7 @@ describe('Transporter.getShipment', ()=>{
             callback(null, mockShipment);
         });
 
-        Transporter.getShipment(shipmentID,false, (err: MysqlError | null, results: any) => {
+        Transporter.getShipment(shipmentID, false, (err: MysqlError | null, results: any) => {
             expect(err).toBeNull();
             expect(results).toEqual(mockShipment);
             expect(con.query).toHaveBeenCalledWith(
@@ -1640,7 +1640,7 @@ describe('Transporter.getShipment', ()=>{
             callback(mockError, null);
         });
 
-        Transporter.getShipment(shipmentID,true, (err: MysqlError | null, results: any) => {
+        Transporter.getShipment(shipmentID, true, (err: MysqlError | null, results: any) => {
             expect(err).toBe(mockError);
             expect(results).toBeNull();
             expect(con.query).toHaveBeenCalledWith(
@@ -1660,7 +1660,7 @@ describe('Transporter.getShipment', ()=>{
             callback(mockError, null);
         });
 
-        Transporter.getShipment(shipmentID,false, (err: MysqlError | null, results: any) => {
+        Transporter.getShipment(shipmentID, false, (err: MysqlError | null, results: any) => {
             expect(err).toBe(mockError);
             expect(results).toBeNull();
             expect(con.query).toHaveBeenCalledWith(
@@ -1723,21 +1723,837 @@ describe('Transporter.updateShipment', () => {
 });
 
 /********************************************TRIP TESTS*******************************************/
+// CREATE TRIP
+describe('Transporter.createTrip', () => {
+    it('should insert a trip and return result', (done) => {
+        const routeFrom = "Shelbyville";
+        const routeTo = "Springfield";
+        const driver1ID = 672;
+        const driver2ID = -1;
+        const mockTrip = [{ insertId: 1 }];
 
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockTrip);
+        });
 
+        Transporter.createTrip(routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockTrip);
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)',
+                [routeFrom, routeTo, driver1ID, driver2ID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
 
+    it('should return an error when the query fails', (done) => {
+        const routeFrom = "Shelbyville";
+        const routeTo = "Springfield";
+        const driver1ID = 672;
+        const driver2ID = -1;
+        const mockError = new Error('Test Error');
 
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
 
+        Transporter.createTrip(routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)',
+                [routeFrom, routeTo, driver1ID, driver2ID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
 
+// RETRIEVE TRIPS
+describe('Transporter.getTrips', () => {
+    it('should retrieve all trips with dereference', (done) => {
+        const mockTrips = [
+            { id: 1, route_from: 'Shelbyville', route_to: 'Springfield', driver1_id: 672, driver2_id: -1 },
+            { id: 2, route_from: 'Springfield', route_to: 'Shelbyville', driver1_id: 672, driver2_id: -1 },
+        ];
 
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockTrips);
+        });
 
+        Transporter.getTrips(true, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockTrips);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
 
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
 
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
 
+        Transporter.getTrips(true, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
 
+    it('should retrieve all trips without dereference', (done) => {
+        const mockTrips = [
+            { id: 1, route_from: 'Shelbyville', route_to: 'Springfield', driver1_id: 672, driver2_id: -1 },
+            { id: 2, route_from: 'Springfield', route_to: 'Shelbyville', driver1_id: 672, driver2_id: -1 },
+        ];
 
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockTrips);
+        });
 
+        Transporter.getTrips(false, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockTrips);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trips',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
 
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getTrips(false, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trips',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+describe('Transporter.getTrip', () => {
+    it('should retrieve a single trip with dereference', (done) => {
+        const tripID = 1;
+        const mockTrip = [{ id: 1, route_from: 'Shelbyville', route_to: 'Springfield', driver1_id: 672, driver2_id: -1 }];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockTrip);
+        });
+
+        Transporter.getTrip(tripID, true, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockTrip);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id WHERE id = ?',
+                tripID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const tripID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getTrip(tripID, true, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id WHERE id = ?',
+                tripID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should retrieve a single trip without dereference', (done) => {
+        const tripID = 1;
+        const mockTrip = [{ id: 1, route_from: 'Shelbyville', route_to: 'Springfield', driver1_id: 672, driver2_id: -1 }];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockTrip);
+        });
+
+        Transporter.getTrip(tripID, false, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockTrip);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trips',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const tripID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getTrip(tripID, false, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trips',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// UPDATE TRIP
+describe('Transporter.updateTrip', () => {
+    it('should update a trip and return the result', (done) => {
+        const tripID = 1;
+        const routeFrom = "Shelbyville";
+        const routeTo = "Springfield";
+        const driver1ID = 672;
+        const driver2ID = -1;
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.updateTrip(tripID, routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE trips SET route_from = ?, route_to = ?, driver1_id = ?, driver2_id = ? WHERE id = ?',
+                [routeFrom, routeTo, driver1ID, driver2ID, tripID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const tripID = 1;
+        const routeFrom = "Shelbyville";
+        const routeTo = "Springfield";
+        const driver1ID = 672;
+        const driver2ID = -1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.updateTrip(tripID, routeFrom, routeTo, driver1ID, driver2ID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE trips SET route_from = ?, route_to = ?, driver1_id = ?, driver2_id = ? WHERE id = ?',
+                [routeFrom, routeTo, driver1ID, driver2ID, tripID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// DELETE TRIP
+describe('Transporter.deleteTrip', () => {
+    it('should delete a trip and return the result', (done) => {
+        const tripID = 1;
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.deleteTrip(tripID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM trips WHERE id = ?',
+                tripID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const tripID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.deleteTrip(tripID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM trips WHERE id = ?',
+                tripID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
 
 /********************************************REPAIR TESTS*******************************************/
-/********************************************SHIPMENT_TRIP TESTS*******************************************/
+// CREATE REPAIR
+describe('Transporter.createRepair', () => {
+    it('should insert a repair and return result', (done) => {
+        const truckID = 1;
+        const mechanicID = 1;
+        const estimatedTime = 12;
+        const mockTrip = [{ insertId: 1 }];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockTrip);
+        });
+
+        Transporter.createRepair(truckID, mechanicID, estimatedTime, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockTrip);
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO repairs (truck_id, mechanic_id, estimated_time) VALUES (?, ?, ?)',
+                [truckID, mechanicID, estimatedTime],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const truckID = 1;
+        const mechanicID = 1;
+        const estimatedTime = 12;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.createRepair(truckID, mechanicID, estimatedTime, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO repairs (truck_id, mechanic_id, estimated_time) VALUES (?, ?, ?)',
+                [truckID, mechanicID, estimatedTime],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// RETRIEVE REPAIRS
+describe('Transporter.getRepairs', () => {
+    it('should retrieve all repairs with dereference', (done) => {
+        const mockRepairs = [
+            { id: 1, truck_id: 1, mechanic_id: 1, estimated_time: 12 },
+            { id: 2, truck_id: 2, mechanic_id: 2, estimated_time: 24 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockRepairs);
+        });
+
+        Transporter.getRepairs(true, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockRepairs);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getRepairs(true, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should retrieve all repairs without dereference', (done) => {
+        const mockRepairs = [
+            { id: 1, truck_id: 1, mechanic_id: 1, estimated_time: 12 },
+            { id: 2, truck_id: 2, mechanic_id: 2, estimated_time: 24 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockRepairs);
+        });
+
+        Transporter.getRepairs(false, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockRepairs);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getRepairs(false, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+describe('Transporter.getRepair', () => {
+    it('should retrieve a single repair with dereference', (done) => {
+        const repairID = 1;
+        const mockRepairs = [
+            { id: 1, truck_id: 1, mechanic_id: 1, estimated_time: 12 },
+            { id: 2, truck_id: 2, mechanic_id: 2, estimated_time: 24 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockRepairs);
+        });
+
+        Transporter.getRepair(repairID, true, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockRepairs);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id WHERE id = ?',
+                repairID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const repairID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getRepair(repairID, true, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id WHERE id = ?',
+                repairID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should retrieve a single repair without dereference', (done) => {
+        const repairID = 1;
+        const mockRepairs = [
+            { id: 1, truck_id: 1, mechanic_id: 1, estimated_time: 12 },
+            { id: 2, truck_id: 2, mechanic_id: 2, estimated_time: 24 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockRepairs);
+        });
+
+        Transporter.getRepair(repairID, false, (err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockRepairs);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id WHERE id = ?',
+                repairID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const repairID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getRepair(repairID, false, (err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id WHERE id = ?',
+                repairID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// UPDATE REPAIR
+describe('Transporter.updateRepair', () => {
+    it('should update a repair and return result', (done) => {
+        const repairID = 1;
+        const truckID = 1;
+        const mechanicID = 1;
+        const estimatedTime = 12;
+        const mockTrip = [{ affectedRows: 1 }];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockTrip);
+        });
+
+        Transporter.updateRepair(repairID, truckID, mechanicID, estimatedTime, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toBe(mockTrip);
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE repairs SET truck_id = ?, mechanic_id = ?, estimated_time = ? WHERE id = ?',
+                [truckID, mechanicID, estimatedTime, repairID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const repairID = 1;
+        const truckID = 1;
+        const mechanicID = 1;
+        const estimatedTime = 12;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.updateRepair(repairID, truckID, mechanicID, estimatedTime, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE repairs SET truck_id = ?, mechanic_id = ?, estimated_time = ? WHERE id = ?',
+                [truckID, mechanicID, estimatedTime, repairID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// DELETE REPAIR
+describe('Transporter.deleteRepair', () => {
+    it('should delete a repair and return the result', (done) => {
+        const repairID = 1;
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.deleteRepair(repairID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM repairs WHERE id = ?',
+                repairID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const repairID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.deleteRepair(repairID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM repairs WHERE id = ?',
+                repairID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+/********************************************SHIPMENT TRIP TESTS*******************************************/
+// CREATE SHIPMENT TRIP
+describe('Transporter.createTripShipment', () => {
+    it('should insert a trip_shipment and return the result', (done) => {
+        const tripID = 1;
+        const shipmentID = 2;
+        const mockResult = { insertId: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.createTripShipment(tripID, shipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO trip_shipments (trip_id, shipment_id) VALUES (?, ?)',
+                [tripID, shipmentID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const tripID = 1;
+        const shipmentID = 2;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.createTripShipment(tripID, shipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'INSERT INTO trip_shipments (trip_id, shipment_id) VALUES (?, ?)',
+                [tripID, shipmentID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// RETRIEVE TRIP SHIPMENT
+describe('Transporter.getTripShipment', () => {
+    it('should retrieve a single trip shipment by ID', (done) => {
+        const tripShipmentID = 1;
+        const mockTripShipment = [
+            { id: 1, shipment_id: 121, trip_id: 12 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockTripShipment);
+        });
+
+        Transporter.getTripShipment(tripShipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockTripShipment);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trip_shipments WHERE id = ?',
+                tripShipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const tripShipmentID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getTripShipment(tripShipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trip_shipments WHERE id = ?',
+                tripShipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+describe('Transporter.getTripShipments', () => {
+    it('should retrieve all trip_shipments', (done) => {
+        const mockTripShipments = [
+            { id: 1, shipment_id: 121, trip_id: 12 },
+            { id: 3, shipment_id: 221, trip_id: 13 },
+        ];
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(null, mockTripShipments);
+        });
+
+        Transporter.getTripShipments((err: MysqlError | null, results: any) => {
+            expect(err).toBeNull();
+            expect(results).toEqual(mockTripShipments);
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trip_shipments',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.getTripShipments((err: MysqlError | null, results: any) => {
+            expect(err).toBe(mockError);
+            expect(results).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'SELECT * FROM trip_shipments',
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// UPDATE TRIP SHIPMENT
+describe('Transporter.updateTripShipment', () => {
+    it('should update a trip shipment and return the result', (done) => {
+        const tripShipmentID = 1;
+        const tripID = 1;
+        const shipmentID = 2;
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.updateTripShipment(tripShipmentID, tripID, shipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE trip_shipments SET trip_id = ?, shipment_id = ? WHERE id = ?',
+                [tripID, shipmentID, tripShipmentID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const tripShipmentID = 1;
+        const tripID = 1;
+        const shipmentID = 2;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.updateTripShipment(tripShipmentID, tripID, shipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'UPDATE trip_shipments SET trip_id = ?, shipment_id = ? WHERE id = ?',
+                [tripID, shipmentID, tripShipmentID],
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});
+
+// DELETE TRIP SHIPMENT
+describe('Transporter.deleteTripShipment', () => {
+    it('should delete a trip shipment and return the result', (done) => {
+        const trShipmentID = 1;
+        const mockResult = { affectedRows: 1 };
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(null, mockResult);
+        });
+
+        Transporter.deleteTripShipment(trShipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBeNull();
+            expect(result).toEqual(mockResult);
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM trip_shipments WHERE id = ?',
+                trShipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+
+    it('should return an error when the query fails', (done) => {
+        const trShipmentID = 1;
+        const mockError = new Error('Test Error');
+
+        (con.query as jest.Mock).mockImplementation((query, values, callback) => {
+            callback(mockError, null);
+        });
+
+        Transporter.deleteTripShipment(trShipmentID, (err: MysqlError | null, result: any) => {
+            expect(err).toBe(mockError);
+            expect(result).toBeNull();
+            expect(con.query).toHaveBeenCalledWith(
+                'DELETE FROM trip_shipments WHERE id = ?',
+                trShipmentID,
+                expect.any(Function)
+            );
+            done();
+        });
+    });
+});

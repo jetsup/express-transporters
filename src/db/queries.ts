@@ -348,6 +348,7 @@ export const Transporter = {
             }
         );
     },
+    /**REPAIRS*/
     createRepair: (truckID: number, mechanicID: number, estimatedTime: number, callback: any) => {
         con.query(
             `INSERT INTO repairs (truck_id, mechanic_id, estimated_time) VALUES (?, ?, ?)`, [truckID, mechanicID, estimatedTime],
@@ -361,9 +362,13 @@ export const Transporter = {
             }
         );
     },
-    getRepairs: (callback: any) => {
+    getRepair: (repairID: number, dereference: boolean, callback: any) => {
         con.query(
-            `SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id`, (err: MysqlError | null, result: any) => {
+            dereference ?
+                `SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id WHERE id = ?` :
+                `SELECT * FROM repairs WHERE id = ?`,
+            repairID,
+            (err: MysqlError | null, result: any) => {
                 if (err) {
 
                     callback(err, null);
@@ -373,6 +378,49 @@ export const Transporter = {
                 callback(null, plainResult);
             }
         )
+    },
+    getRepairs: (dereference: boolean, callback: any) => {
+        con.query(
+            dereference ?
+                `SELECT r.id, t.brand, e.name, e.surname, r.estimated_time FROM repairs r JOIN trucks t ON r.truck_id = t.id JOIN mechanics m ON r.mechanic_id = m.id JOIN employees e ON m.employee_id = e.id` :
+                `SELECT * FROM repairs`,
+            (err: MysqlError | null, result: any) => {
+                if (err) {
+
+                    callback(err, null);
+                    return;
+                }
+                const plainResult = result.map((row: any) => ({ ...row })); // without the RowDataPacket wrapper
+                callback(null, plainResult);
+            }
+        )
+    },
+    updateRepair: (repairID: number, truckID: number, mechanicID: number, estimatedTime: number, callback: any) => {
+        con.query(
+            `UPDATE repairs SET truck_id = ?, mechanic_id = ?, estimated_time = ? WHERE id = ?`,
+            [truckID, mechanicID, estimatedTime, repairID],
+            (err: MysqlError | null, result: any) => {
+                if (err) {
+
+                    callback(err, null);
+                    return;
+                }
+                callback(null, result);
+            }
+        );
+    },
+    deleteRepair: (repairID: number, callback: any) => {
+        con.query(
+            `DELETE FROM repairs WHERE id = ?`,
+            repairID,
+            (err: MysqlError | null, result: any) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, result);
+            }
+        );
     },
     /**CUSTOMERS*/
     createCustomer: (name: string, surname: string, address: string, phone1: string, phone2: string, callback: any) => {
@@ -437,6 +485,7 @@ export const Transporter = {
             }
         );
     },
+    /**SHIPMENTS*/
     createShipment: (name: string, weight: number, value: number, customerID: number, callback: any) => {
         con.query(
             `INSERT INTO shipments (name, weight, value, customer_id) VALUES (?, ?, ?, ?)`, [name, weight, value, customerID],
@@ -507,18 +556,13 @@ export const Transporter = {
             }
         );
     },
-    createTrip: (
-        routeFrom: string,
-        routeTo: string,
-        driver1ID: number,
-        driver2ID: number = -1,
-        callback: any
-    ) => {
+    /**TRIPS*/
+    createTrip: (routeFrom: string, routeTo: string, driver1ID: number, driver2ID: number = -1, callback: any) => {
         con.query(
-            `INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)`, [routeFrom, routeTo, driver1ID, driver2ID],
+            `INSERT INTO trips (route_from, route_to, driver1_id, driver2_id) VALUES (?, ?, ?, ?)`,
+            [routeFrom, routeTo, driver1ID, driver2ID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-
                     callback(err, null);
                     return;
                 }
@@ -526,11 +570,14 @@ export const Transporter = {
             }
         );
     },
-    getTrips: (callback: any) => {
+    getTrip: (tripID: number, dereference: boolean, callback: any) => {
         con.query(
-            `SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id`, (err: MysqlError | null, result: any) => {
+            dereference ?
+                `SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id WHERE id = ?` :
+                `SELECT * FROM trips WHERE id = ?`,
+            tripID,
+            (err: MysqlError | null, result: any) => {
                 if (err) {
-
                     callback(err, null);
                     return;
                 }
@@ -539,12 +586,97 @@ export const Transporter = {
             }
         )
     },
+    getTrips: (dereference: boolean, callback: any) => {
+        con.query(
+            dereference ?
+                `SELECT t.id, t.route_from, t.route_to, d1.name as driver1, d2.name as driver2 FROM trips t JOIN drivers d1 ON t.driver1_id = d1.id LEFT JOIN drivers d2 ON t.driver2_id = d2.id` :
+                `SELECT * FROM trips`,
+            (err: MysqlError | null, result: any) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                const plainResult = result.map((row: any) => ({ ...row })); // without the RowDataPacket wrapper
+                callback(null, plainResult);
+            }
+        );
+    },
+    updateTrip: (tripID: number, routeFrom: string, routeTo: string, driver1ID: number, driver2ID: number = -1, callback: any) => {
+        con.query(
+            `UPDATE trips SET route_from = ?, route_to = ?, driver1_id = ?, driver2_id = ? WHERE id = ?`,
+            [routeFrom, routeTo, driver1ID, driver2ID, tripID],
+            (err: MysqlError | null, result: any) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, result);
+            }
+        );
+    },
+    deleteTrip: (tripID: number, callback: any) => {
+        con.query(`DELETE FROM trips WHERE id = ?`, tripID, (err: MysqlError | null, result: any) => {
+            if (err) {
+                callback(err, null);
+                return;
+            }
+            callback(null, result);
+        });
+    },
+    /**TRIP SHIPMENTS*/
     createTripShipment: (tripID: number, shipmentID: number, callback: any) => {
         con.query(
             `INSERT INTO trip_shipments (trip_id, shipment_id) VALUES (?, ?)`, [tripID, shipmentID],
             (err: MysqlError | null, result: any) => {
                 if (err) {
-
+                    callback(err, null);
+                    return;
+                }
+                callback(null, result);
+            }
+        );
+    },
+    getTripShipment: (trShipmentID: number, callback: any) => {
+        con.query(
+            `SELECT * FROM trip_shipments WHERE id = ?`, trShipmentID, (err: MysqlError | null, result: any) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                const plainResult = result.map((row: any) => ({ ...row })); // without the RowDataPacket wrapper
+                callback(null, plainResult);
+            }
+        )
+    },
+    getTripShipments: (callback: any) => {
+        con.query(
+            `SELECT * FROM trip_shipments`, (err: MysqlError | null, result: any) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                const plainResult = result.map((row: any) => ({ ...row })); // without the RowDataPacket wrapper
+                callback(null, plainResult);
+            }
+        )
+    },
+    updateTripShipment: (trShipmentID: number, tripID: number, shipmentID: number, callback: any) => {
+        con.query(
+            `UPDATE trip_shipments SET trip_id = ?, shipment_id = ? WHERE id = ?`, [tripID, shipmentID, trShipmentID],
+            (err: MysqlError | null, result: any) => {
+                if (err) {
+                    callback(err, null);
+                    return;
+                }
+                callback(null, result);
+            }
+        );
+    },
+    deleteTripShipment: (trShipmentID: number, callback: any) => {
+        con.query(
+            `DELETE FROM trip_shipments WHERE id = ?`, trShipmentID,
+            (err: MysqlError | null, result: any) => {
+                if (err) {
                     callback(err, null);
                     return;
                 }
