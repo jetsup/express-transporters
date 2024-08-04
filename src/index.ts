@@ -164,6 +164,7 @@ app.use("/css", express.static(__dirname + "../../node_modules/bootstrap/dist/cs
 app.use("/js", express.static(__dirname + "../../node_modules/jquery/dist")); // redirect JS jQuery
 app.use("/js", express.static(__dirname + "../../node_modules/datatables.net/js")); // redirect datatables js
 app.use("/css", express.static(__dirname + "../../node_modules/datatables.net-dt/css")); // redirect datatables css
+app.use("/js", express.static(__dirname + "../../node_modules/@faker-js/faker/dist/cjs")); // redirect fakerjs js
 
 
 // Error handling middleware
