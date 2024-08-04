@@ -95,3 +95,7 @@ To test the CRUD operations, we are using [jest](https://jestjs.io/), run:
 ```bash
 npm test
 ```
+
+### Additional Info and/or Directives
+
+[More.md](More.md)
